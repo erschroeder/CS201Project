@@ -93,67 +93,59 @@ int main()
 		printf("What is your username?\n");		//prompt for username
 		char user[240];
 		
-		scanf("%s\n", user);						//reads in given userID
-		printf("%s\n", user);
-		char* fileName = strcat(user,".txt");	//saves the file name as the <userID>.log
-		printf("%s\n", fileName);	 //TEST
+		scanf("%s", user);						//reads in given userID
+		char* fileName = strcat(user,".txt");	//saves the file name as the <userID>.txt
 		//opens/creates the collection
-		//collection = fopen(fileName, "r+");
-		//int result = access(fileName, F_OK);
-		//printf("%d", result);
-	}//REMOVE
-		/*if(result != -1){													//if the file already exists
+		int result = access(fileName, F_OK);
+		if(result != -1){													//if the file already exists
 			printf("This user already exists. Is this you? (y or n)");			//verify this is the right user, if yes, read in the file, if no reprompt
 			scanf("%s", ans);
 			while((strcmp(ans, "y")!=0)&&(strcmp(ans, "Y")!=0)&&(strcmp(ans, "n")!=0)&&(strcmp(ans, "N")!=0)){
 				printf("This user already exists. Is this you? (y or n)\n");
 				scanf("%s", ans);
 			}
-			if((strcmp(ans, "n")==0)||(strcmp(ans, "N")==0)){		//reprompt if no (break the loop)
-				break;
-			}
-			//reads in the collection that was already there
-			collection = fopen(fileName, "r+");
-			char line[216];
-			while (fgets(line, 216, collection) != NULL){								//read in a line (with max 216 characters) from the collection and saves it to the char[] line
-				//used strtok to separate and save all values from the file
-				const char delim2[] = "	";
-				char *token2;
-				token2 = strtok(line, delim2);
-				int tracker = 1;
-				while(token2 != NULL){
-					if(tracker == 1){
-						tID = token2;
-					} else if (tracker == 2){
-						type = token2;
-					} else if (tracker == 3){
-						pTitle = token2;
-					} else if (tracker == 4){
-						oTitle = token2;
-					} else if (tracker == 5){
-						adult = token2;
-					} else if (tracker == 6){
-						sYear = token2;
-					} else if(tracker == 7){
-						eYear = token2;
-					} else if(tracker == 8){
-						runTime = token2;
-					} else if(tracker == 9){
-						inGenres = token2;
-					} else {
-						printf("error");
-						exit(0); 
+			if((strcmp(ans, "y")==0)||(strcmp(ans, "Y")==0)){		//reprompt if no (break the loop)
+				//reads in the collection that was already there
+				collection = fopen(fileName, "r+");
+				char line[216];
+				while (fgets(line, 216, collection) != NULL){								//read in a line (with max 216 characters) from the collection and saves it to the char[] line
+					//used strtok to separate and save all values from the file
+					const char delim2[] = "	";
+					char *token2;
+					token2 = strtok(line, delim2);
+					int tracker = 1;
+					while(token2 != NULL){
+						if(tracker == 1){
+							tID = token2;
+						} else if (tracker == 2){
+							type = token2;
+						} else if (tracker == 3){
+							pTitle = token2;
+						} else if (tracker == 4){
+							oTitle = token2;
+						} else if (tracker == 5){
+							adult = token2;
+						} else if (tracker == 6){
+							sYear = token2;
+						} else if(tracker == 7){
+							eYear = token2;
+						} else if(tracker == 8){
+							runTime = token2;
+						} else if(tracker == 9){
+							inGenres = token2;
+						} else {
+							printf("error");
+							exit(0); 
+						}
+						token2 = strtok(NULL, delim2);
+						tracker++;
 					}
-					token2 = strtok(NULL, delim2);
-					tracker++;
+					MOVIE* new_mov = newMovie(tID, type, pTitle, oTitle, adult, sYear, eYear, runTime, inGenres);
+					colRoot = insertMovie(colRoot, new_mov);		//insert the movie into the BST
 				}
-				MOVIE* new_mov = newMovie(tID, type, pTitle, oTitle, adult, sYear, eYear, runTime, inGenres);
-				colRoot = insertMovie(colRoot, new_mov);		//insert the movie into the BST
 			}
 		} else {																//if the file doesn"t already exist, create it																							//if the file doesn"t already exist, create one for writing
 			strcpy(ans, "y");
-			//ans = "y";																									//makes sure the while loop doesn"t run again
-			fclose(collection);
 			collection = fopen(fileName, "w+");
 		}
 		
@@ -161,7 +153,7 @@ int main()
 	colRoot = promptForAction(dirRoot, colRoot);
 	endSequence(dirRoot, colRoot, collection);
 	
-	fclose(collection);*/
+	fclose(collection);
 	
 	return(0);
 }
@@ -189,13 +181,20 @@ MOVIE* promptForAction(MOVIE* dirRoot, MOVIE* colRoot){
 }
 
 MOVIE* runCreate(MOVIE* dirRoot, MOVIE* colRoot){
+	printf("Inside runCreate\n");//TEST
 	MOVIE* orig = findMovieInDB(dirRoot);
+	printf("Selected a movie\n");//TEST
 	//get other info
 	char* mediaType = promptForMediaType(mediaType);
+	printf("Got Media Type\n");//TEST
 	char* date = promptForDate(date);
+	printf("Got Date\n");//Test
 	colRoot = insertMovie(colRoot, orig);
+	printf("Inserted Movie\n");//TEST
 	setMediaType(find(colRoot, getPTitle(orig)), mediaType);
+	printf("Set Media Type\n");//TEST
 	setDate(find(colRoot, getPTitle(orig)), date);
+	printf("Set Date\n");//TEST
 	
 	return colRoot;
 }
@@ -281,8 +280,10 @@ MOVIE* findMovieInDB(MOVIE* dirRoot){
 	//prompt for title
 	char title[240];
 	printf("What title would you like to search for?\n");
-	scanf("%s", title);
+	scanf("%s", title);//FIX: Need to save the whole line, including whitespace
+	printf("%s\n", title);//TEST
 	DA *foundMovies = findMovies(dirRoot, title);
+	printf("Done with findMovies\n");//TEST
 	//display first 10 options with that title with numbers 1-10 next to them
 	displayFoundDBMovies(foundMovies, 0, 10);
 	//prompt for number of chosen movie (1-10), if they want to continue the search, enter (c), if they want to go back (b)
@@ -306,7 +307,7 @@ void displayFoundDBMovies(DA *foundMovies, int start, int end){
 	}
 }
 
-MOVIE* selectAMovie(DA *foundMovies, int start, int end){
+MOVIE* selectAMovie(DA *foundMovies, int start, int end){//FIX: segfault in here somewhere
 	//prompt for number of chosen movie (1-10), if they want to continue the search, enter (c), if they want to go back (b)
 	printf("What is the number of the movie you wish to add? If you wish to continue the search, enter 'c'. If you want to go back to the previous 10 search values, enter 'b'.\n");
 	char ans[3];

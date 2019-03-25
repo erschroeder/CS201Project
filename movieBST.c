@@ -6,6 +6,8 @@
 #include "da.h"
 #include "movieBST.h"
 
+#include <ctype.h>
+
 typedef struct movie {	//struct definition
 	char tconst[10];              //tracker1
 	char titleType[6];           //tracker2
@@ -16,6 +18,8 @@ typedef struct movie {	//struct definition
 	char endYear[5];             //tracker7
 	char runtimeMinutes[5];      //tracker8
 	char genres[240];  		       //tracker9
+	
+	int visited;
 	
 	char mediaType[8];			//set later by user in collection only
 	char date[10];					//set later by user in colleciton only
@@ -41,6 +45,8 @@ MOVIE* newMovie(char* tID, char* type, char* pTitle, char* oTitle, char* adult, 
 	strcpy(new_movie->endYear, eYear);
 	strcpy(new_movie->runtimeMinutes, runTime);
 	strcpy(new_movie->genres, inGenres);
+	
+	new_movie->visited = 0;
 	
     //set later as needed
 	new_movie->left = NULL;
@@ -217,23 +223,33 @@ MOVIE* removeMovie(MOVIE *root, char* pTitle)
     return root;
 }
 
-DA* findMovies(MOVIE *root, const char* pTitle){															//if anything is broken, it's probably this
-    MOVIE* current = root;
+DA* findMovies(MOVIE *root, const char* pTitle){	//FIX: Need to make everything lowercase, if time, change to only search first word
+	MOVIE* current = root;
 	MOVIE* prev = NULL;
 	DA* array = newDA();
+	
 	while(current != NULL){
-		if(current->left != NULL){
+		char* check = strstr(current->primaryTitle, pTitle);
+		if(check && current->visited != 1){	//if it contains the substring
+			insertDA(array, sizeDA(array), current);		//add it to the dynamic array
+		}
+		current->visited = 1;
+		//if left exists, and has not been visited, check that one
+		if(current->left != NULL && current->left->visited != 1){
 			prev = current;
 			current = current->left;
-		} else {	//if current has no left child
-			//check for right child
-			if(current->right != NULL){
+		}
+		//if those conditions fail, then
+		else {
+			//if right exists and has not been visited, check that one
+			if(current->right != NULL && current->right->visited != 1){
 				prev = current;
 				current = current->right;
-			} else {	//if current has no right child
-				//check if current value is what we are looking for
-				if(strstr(current->primaryTitle, pTitle) != NULL){	//if it contains the substring
-					insertDA(array, sizeDA(array), current);		//add it to the dynamic array
+			}
+			//if that fails, back up
+			else {
+				if(prev == NULL){
+					break;
 				}
 				current = prev;										//move to the parent node 
 				prev = prev->parent;								//set prev to its parent
