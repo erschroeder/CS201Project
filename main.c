@@ -5,6 +5,8 @@
 #include <string.h>
 #include <ctype.h>
 
+#include <unistd.h>
+
 //Fix all the includes!!!!!!!!!!!!!!!!
 
 //function declarations
@@ -13,8 +15,8 @@ MOVIE* runCreate(MOVIE* dirRoot, MOVIE* colRoot);
 void runRetrieve(MOVIE* colRoot);
 MOVIE* runUpdate(MOVIE* colRoot);
 MOVIE* runDelete(MOVIE* colRoot);
-char* promptForMediaType(void);
-char* promptForDate(void);
+char* promptForMediaType(char* type);
+char* promptForDate(char* date);
 MOVIE* findMovieInDB(MOVIE* dirRoot);
 void displayFoundDBMovies(DA *foundMovies, int start, int end);
 MOVIE* selectAMovie(DA *foundMovies, int start, int end);
@@ -79,38 +81,39 @@ int main()
 			token = strtok(NULL, delim);
 			tracker++;
 		}
-		printf("%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n", tID, type, pTitle, oTitle, adult, sYear, eYear, runTime, inGenres);
-		//printf("ABOUT TO INSERT MOVIE %s\n", pTitle);
 		MOVIE* new_mov = newMovie(tID, type, pTitle, oTitle, adult, sYear, eYear, runTime, inGenres);
 		dirRoot = insertMovie(dirRoot, new_mov);		//insert the movie into the BST
-		//printf("Inserted %s into the database\n", pTitle);
 	}
-	printf("DONE WITH INSERTS\n");
+	printTree(dirRoot);
 	fclose(movieRecs);
-	printTree(dirRoot);//TEST
 	
-	//finds a unique user"s file
-	/*char* ans = "n";
-	while(ans == "n"){
+	//finds a unique user's file
+	char ans[] = "n";
+	while((strcmp(ans, "n")==0)||(strcmp(ans, "N")==0)){
 		printf("What is your username?\n");		//prompt for username
-		char* user;
-		scanf("%s", user);						//reads in given userID
-		printf("%s", user);		//TEST
-		char* fileName = strcat(user,".log");	//saves the file name as the <userID>.log
-		printf("%s", fileName);		//TEST
+		char user[240];
+		
+		scanf("%s\n", user);						//reads in given userID
+		printf("%s\n", user);
+		char* fileName = strcat(user,".txt");	//saves the file name as the <userID>.log
+		printf("%s\n", fileName);	 //TEST
 		//opens/creates the collection
-		collection = fopen(fileName, "r+");
-		if(collection != NULL){													//if the file already exists
+		//collection = fopen(fileName, "r+");
+		//int result = access(fileName, F_OK);
+		//printf("%d", result);
+	}//REMOVE
+		/*if(result != -1){													//if the file already exists
 			printf("This user already exists. Is this you? (y or n)");			//verify this is the right user, if yes, read in the file, if no reprompt
 			scanf("%s", ans);
-			while((ans != "y" && ans != "Y") && (ans != "n" && ans != "N")){
+			while((strcmp(ans, "y")!=0)&&(strcmp(ans, "Y")!=0)&&(strcmp(ans, "n")!=0)&&(strcmp(ans, "N")!=0)){
 				printf("This user already exists. Is this you? (y or n)\n");
 				scanf("%s", ans);
 			}
-			if(ans == "n" || ans == "N"){		//reprompt if no (break the loop)
+			if((strcmp(ans, "n")==0)||(strcmp(ans, "N")==0)){		//reprompt if no (break the loop)
 				break;
 			}
 			//reads in the collection that was already there
+			collection = fopen(fileName, "r+");
 			char line[216];
 			while (fgets(line, 216, collection) != NULL){								//read in a line (with max 216 characters) from the collection and saves it to the char[] line
 				//used strtok to separate and save all values from the file
@@ -148,7 +151,8 @@ int main()
 				colRoot = insertMovie(colRoot, new_mov);		//insert the movie into the BST
 			}
 		} else {																//if the file doesn"t already exist, create it																							//if the file doesn"t already exist, create one for writing
-			ans = "y";																									//makes sure the while loop doesn"t run again
+			strcpy(ans, "y");
+			//ans = "y";																									//makes sure the while loop doesn"t run again
 			fclose(collection);
 			collection = fopen(fileName, "w+");
 		}
@@ -163,18 +167,18 @@ int main()
 }
 
 MOVIE* promptForAction(MOVIE* dirRoot, MOVIE* colRoot){
-	char* answer;
+	char ans[2];
 	printf("What would you like to do? VIEW YOUR COLLECTION (r), ADD A NEW RECORD (c), UPDATE A RECORD (u), DELETE A RECORD (d), or EXIT (e)\n");
-	scanf("%s", answer);
-	if(answer=="c" || answer == "C"){
+	scanf("%s", ans);
+	if((strcmp(ans, "c")==0)||(strcmp(ans, "C")==0)){
 		runCreate(dirRoot, colRoot);
-	} else if (answer=="r" || answer == "R"){
+	} else if ((strcmp(ans, "r")==0)||(strcmp(ans, "R")==0)){
 		runRetrieve(colRoot);
-	} else if (answer == "u" || answer == "U"){
+	} else if ((strcmp(ans, "u")==0)||(strcmp(ans, "U")==0)){
 		runUpdate(colRoot);
-	} else if (answer == "d" || answer == "D"){
+	} else if ((strcmp(ans, "d")==0)||(strcmp(ans, "D")==0)){
 		runDelete(colRoot);
-	} else if (answer == "e" || answer == "E"){
+	} else if ((strcmp(ans, "e")==0)||(strcmp(ans, "E")==0)){
 		exit(0);
 	} else {
 		printf("Invalid Response. Please Try Again.\n");
@@ -187,8 +191,8 @@ MOVIE* promptForAction(MOVIE* dirRoot, MOVIE* colRoot){
 MOVIE* runCreate(MOVIE* dirRoot, MOVIE* colRoot){
 	MOVIE* orig = findMovieInDB(dirRoot);
 	//get other info
-	char* mediaType = promptForMediaType();
-	char* date = promptForDate();
+	char* mediaType = promptForMediaType(mediaType);
+	char* date = promptForDate(date);
 	colRoot = insertMovie(colRoot, orig);
 	setMediaType(find(colRoot, getPTitle(orig)), mediaType);
 	setDate(find(colRoot, getPTitle(orig)), date);
@@ -203,17 +207,17 @@ void runRetrieve(MOVIE* colRoot){					//print out the whole collection
 MOVIE* runUpdate(MOVIE* colRoot){						//update the media type or the date
 	MOVIE* orig = findMovieInDB(colRoot);
 	printf("Update media type (m), date aquired (d), or both (b)?");
-	char* ans;
-	char* newMediaType;
-	char* newDate;
+	char ans[2];
+	char newMediaType[8];
+	char newDate[10];
 	scanf("%s", ans);
-	if(ans == "m" || ans == "M"){
-		setMediaType(orig,promptForMediaType());
-	} else if (ans == "d" || ans == "D"){
-		setDate(orig, promptForDate());
-	} else if (ans == "b" || ans == "B"){
-		setMediaType(orig,promptForMediaType());
-		setDate(orig, promptForDate());
+	if((strcmp(ans, "m")==0)||(strcmp(ans, "M")==0)){
+		setMediaType(orig,promptForMediaType(newMediaType));
+	} else if ((strcmp(ans, "d")==0)||(strcmp(ans, "D")==0)){
+		setDate(orig, promptForDate(newDate));
+	} else if ((strcmp(ans, "b")==0)||(strcmp(ans, "B")==0)){
+		setMediaType(orig,promptForMediaType(newMediaType));
+		setDate(orig, promptForDate(newDate));
 	} else {
 		printf("Invalid Response. Please Try Again.\n");
 		runUpdate(colRoot);
@@ -228,43 +232,46 @@ MOVIE* runDelete(MOVIE* colRoot){						//delete a record
 	return colRoot;
 }
 
-char* promptForMediaType(void){
+char* promptForMediaType(char* type){
 	printf("What is the media type for this movie? DVD (v), Bluray (b), or Digital (d)\n");
-	char* ans;
-	char* type;
+	char ans[2];
+	//char type[8];
 	scanf("%s", ans);
-	if(ans == "v" || ans == "V"){
-		type = "DVD";
-	} else if(ans == "b" || ans == "B"){
-		type = "Bluray";
-	} else if(ans == "d" || ans == "D"){
-		type = "Digital";
+	if((strcmp(ans, "v")==0)||(strcmp(ans, "V")==0)){
+		strcpy(type, "DVD");
+		//type = "DVD";
+	} else if((strcmp(ans, "b")==0)||(strcmp(ans, "B")==0)){
+		strcpy(type, "Bluray");
+		//type = "Bluray";
+	} else if((strcmp(ans, "d")==0)||(strcmp(ans, "D")==0)){
+		strcpy(type, "Digital");
+		//type = "Digital";
 	} else {
 		printf("Invalid Response. Try Again.\n");
-		return promptForMediaType();
+		return promptForMediaType(type);
 	}
 	//confirm choice
-	while((ans!="y" && ans != "Y") && (ans!="n"&&ans != "N")){
+	while((strcmp(ans, "y")!=0)&&(strcmp(ans, "Y")!=0)&&(strcmp(ans, "n")!=0)&&(strcmp(ans, "N")!=0)){
 		printf("Is the movie a %s? (y or n)\n", type);
 		scanf("%s", ans);
 		if(ans == "n" || ans == "N"){
-			return promptForMediaType();
+			return promptForMediaType(type);
 		}
 	}
 	return type;
 }
 
-char* promptForDate(void){
+char* promptForDate(char* date){
 	printf("When did you acquire this movie? (MM/DD/YY)\n");
-	char* ans;
-	char* date;
+	char ans[2];
+	//char date[10];
 	scanf("%s", ans);
 	//confirm choice
-	while((ans!="y" && ans!="Y") && (ans!="n" && ans!="N")){
+	while((strcmp(ans, "y")!=0)&&(strcmp(ans, "Y")!=0)&&(strcmp(ans, "n")!=0)&&(strcmp(ans, "N")!=0)){
 		printf("Did you aquire the movie on %s? (y or n)\n", date);
 		scanf("%s", ans);
-		if(ans == "n"||ans=="N"){
-			return promptForDate();
+		if((strcmp(ans, "n")==0)||(strcmp(ans, "N")==0)){
+			return promptForDate(date);
 		}
 	}
 	return date;
@@ -272,7 +279,7 @@ char* promptForDate(void){
 
 MOVIE* findMovieInDB(MOVIE* dirRoot){
 	//prompt for title
-	char* title;
+	char title[240];
 	printf("What title would you like to search for?\n");
 	scanf("%s", title);
 	DA *foundMovies = findMovies(dirRoot, title);
@@ -302,20 +309,20 @@ void displayFoundDBMovies(DA *foundMovies, int start, int end){
 MOVIE* selectAMovie(DA *foundMovies, int start, int end){
 	//prompt for number of chosen movie (1-10), if they want to continue the search, enter (c), if they want to go back (b)
 	printf("What is the number of the movie you wish to add? If you wish to continue the search, enter 'c'. If you want to go back to the previous 10 search values, enter 'b'.\n");
-	char* num;
-	scanf("%s", num);
-	if((num == "c")||(num=="C")){
+	char ans[3];
+	scanf("%s", ans);
+	if((strcmp(ans, "c")==0)||(strcmp(ans, "C")==0)){
 		start+=10;
 		end+=10;
 		displayFoundDBMovies(foundMovies, start, end);
-	} else if ((num == "b")||(num=="B")){
+	} else if ((strcmp(ans, "b")==0)||(strcmp(ans, "B")==0)){
 		start-=10;
 		end-=10;
 		displayFoundDBMovies(foundMovies, start, end);
-	} else if (isdigit(num)){
-		if((isdigit(num)>=start)&&(isdigit(num)<=end)){
+	} else if (isdigit(ans)){
+		if((isdigit(ans)>=start)&&(isdigit(ans)<=end)){
 			//valid number
-			MOVIE* chosen = getDA(foundMovies, isdigit(num));
+			MOVIE* chosen = getDA(foundMovies, isdigit(ans));
 			//confirm
 			printf("Is this the movie you want add? (y or n)\n");
 			printMovie(chosen);
@@ -340,11 +347,11 @@ MOVIE* selectAMovie(DA *foundMovies, int start, int end){
 }
 
 void endSequence(MOVIE* dirRoot, MOVIE* colRoot, FILE* collection){
-	char* ans = "y";
-	while(ans != "n" && ans != "N"){
+	char ans[] = "y";
+	while((strcmp(ans, "n")!=0)&&(strcmp(ans, "n")!=0)){
 		printf("Would you like to do anything else?");
 		scanf("%s", ans);
-		if (ans == "y" || ans=="Y"){
+		if ((strcmp(ans, "y")==0)||(strcmp(ans, "Y")==0)){
 			colRoot = promptForAction(dirRoot, colRoot);
 		}
 	}

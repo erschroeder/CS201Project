@@ -7,18 +7,18 @@
 #include "movieBST.h"
 
 typedef struct movie {	//struct definition
-	char* tconst;              //tracker1
-	char* titleType;           //tracker2
-	char *primaryTitle;        //tracker3						//key
-	char *originalTitle;       //tracker4
-	char* isAdult;             //tracker5
-	char* startYear;           //tracker6
-	char* endYear;             //tracker7
-	char* runtimeMinutes;      //tracker8
-	char *genres;  		       //tracker9
+	char tconst[10];              //tracker1
+	char titleType[6];           //tracker2
+	char primaryTitle[240];        //tracker3						//key
+	char originalTitle[240];       //tracker4
+	char isAdult[2];             //tracker5
+	char startYear[5];           //tracker6
+	char endYear[5];             //tracker7
+	char runtimeMinutes[5];      //tracker8
+	char genres[240];  		       //tracker9
 	
-	char* mediaType;			//set later by user in collection only
-	char* date;					//set later by user in colleciton only
+	char mediaType[8];			//set later by user in collection only
+	char date[10];					//set later by user in colleciton only
 	
 	MOVIE* left;
 	MOVIE* right;
@@ -32,42 +32,23 @@ MOVIE* newMovie(char* tID, char* type, char* pTitle, char* oTitle, char* adult, 
         fprintf (stderr, "Something went wrong with malloc for new movie\n");
         exit(1);
     }
-	char tempID[10];
-	strcpy(tempID, tID);
-	char tempType[6];
-	strcpy(tempType, type);
-	char tempPTitle[240];
-	strcpy(tempPTitle, pTitle);
-	char tempOTitle[240];
-	strcpy(tempOTitle, oTitle);
-	char tempAdult[2];
-	strcpy(tempAdult, adult);
-	char tempSYear[5];
-	strcpy(tempSYear, sYear);
-	char tempEYear[5];
-	strcpy(tempEYear, eYear);
-	char tempRuntime[5];
-	strcpy(tempRuntime, runTime);
-	char tempGenres[240];
-	strcpy(tempGenres, inGenres);
-	
-	new_movie->tconst = tempID;
-	new_movie->titleType = tempType;
-	new_movie->primaryTitle = tempPTitle;
-	new_movie->originalTitle = tempOTitle;
-	new_movie->isAdult = tempAdult;
-	new_movie->startYear = tempSYear;
-	new_movie->endYear = tempEYear;
-	new_movie->runtimeMinutes = tempRuntime;
-	new_movie->genres = tempGenres;
+	strcpy(new_movie->tconst, tID);
+	strcpy(new_movie->titleType, type);
+	strcpy(new_movie->primaryTitle, pTitle);
+	strcpy(new_movie->originalTitle, oTitle);
+	strcpy(new_movie->isAdult, adult);
+	strcpy(new_movie->startYear, sYear);
+	strcpy(new_movie->endYear, eYear);
+	strcpy(new_movie->runtimeMinutes, runTime);
+	strcpy(new_movie->genres, inGenres);
 	
     //set later as needed
 	new_movie->left = NULL;
     new_movie->right = NULL;
 	new_movie->parent = NULL;
 	//set later by user in collection only
-	new_movie->mediaType = NULL;
-	new_movie->date = NULL;
+	//new_movie->mediaType = NULL;
+	//new_movie->date = NULL;
     return new_movie;
 }
 
@@ -122,11 +103,13 @@ void setParent(MOVIE* mov, MOVIE* par){
 }
 
 void setMediaType(MOVIE* mov, char* medType){
-	mov->mediaType = medType;
+	strcpy(mov->mediaType, medType);
+	//mov->mediaType = medType;
 }
 
 void setDate(MOVIE* mov, char* d){
-	mov->date = d;
+	strcpy(mov->date, d);
+	//mov->date = d;
 }
 
 MOVIE* insertMovie(MOVIE *root, MOVIE *newMov) {
@@ -141,8 +124,7 @@ MOVIE* insertMovie(MOVIE *root, MOVIE *newMov) {
         while(current != NULL) {																		//if the current movie isn't null
 			r = strcmp(getPTitle(newMov),current->primaryTitle);													//compare the title passed to the function with the title of the current movie
             //TESTER
-			printf("TESTING STRCMP r = %d when comparing pTitle: %s and current->primaryTitle: %s\n", r, getPTitle(newMov), current->primaryTitle);
-			
+						
 			prev = current;																				//set the previous node to current
             if(r < 0) {																					//if the title passed is "less than" the current title
 				is_left = 1;																			//mark that it should go left
@@ -153,16 +135,8 @@ MOVIE* insertMovie(MOVIE *root, MOVIE *newMov) {
             } 
 			//TESTER
 			else {
-				char ans[2];
-				while(ans!="y" && ans!="n"){
-					printf("This movie already exists. Would you like to insert it again? (y or n)\n");
-					scanf("%s", ans);
-					printf("%s\n", ans);
-					if(ans == "n" || ans == "N"){
-						printf("Won't add this one.");
-						return root;
-					}
-				}
+				is_left = 1;
+				current = current->left;
 			}
  
         }
@@ -214,15 +188,26 @@ MOVIE* removeMovie(MOVIE *root, char* pTitle)
                 current = current->left;
             }
             //setting root to current
-			root->tconst = current->tconst;
-			root->titleType = current->titleType;
-			root->primaryTitle = current->primaryTitle;
-			root->originalTitle = current->originalTitle;
-			root->isAdult = current->isAdult;
-			root->startYear = current->startYear;
-			root->endYear = current->endYear;
-			root->runtimeMinutes = current->runtimeMinutes;
-			root->genres = current->genres;
+			strcpy(root->tconst, current->tconst);
+			//root->tconst = current->tconst;
+			strcpy(root->titleType, current->titleType);
+			//root->titleType = current->titleType;
+			strcpy(root->primaryTitle, current->primaryTitle);
+			//root->primaryTitle = current->primaryTitle;
+			strcpy(root->originalTitle, current->originalTitle);
+			//root->originalTitle = current->originalTitle;
+			strcpy(root->isAdult, current->isAdult);
+			//root->isAdult = current->isAdult;
+			strcpy(root->startYear, current->startYear);
+			//root->startYear = current->startYear;
+			strcpy(root->endYear, current->endYear);
+			//root->endYear = current->endYear;
+			strcpy(root->runtimeMinutes, current->runtimeMinutes);
+			//root->runtimeMinutes = current->runtimeMinutes;
+			strcpy(root->genres, current->genres);
+			//root->genres = current->genres;
+			setMediaType(root, current->mediaType);
+			setDate(root, current->date);
             if (parent != NULL)
                 parent->left = removeMovie(parent->left, parent->left->primaryTitle);
             else
