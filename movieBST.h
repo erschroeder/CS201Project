@@ -2,11 +2,14 @@
     #define __COLLECTION_INCLUDED__
 
 	#include <stdlib.h>
+	#include <stdio.h>
 	#include <assert.h>
 	#include "movieBST.h"
 	#include <string.h>
 	#include "da.h"
 	#include "movieBST.h"
+
+	#include <ctype.h>
 	
 	typedef struct movie MOVIE;
 	MOVIE* newMovie(char* tID, char* type, char* pTitle, char* oTitle, char* adult, char* sYear, char* eYear, char* runTime, char* inGenres);
@@ -32,6 +35,7 @@
 	void printMovie(MOVIE* mov, FILE* f);
 	MOVIE* find(MOVIE *root, const char* pTitle);
 	void printTreeForFile(MOVIE* root, FILE* f);
+	void reset(MOVIE *root);
 
     
 #endif

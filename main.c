@@ -7,8 +7,6 @@
 
 #include <unistd.h>
 
-//Fix all the includes!!!!!!!!!!!!!!!!
-
 //function declarations
 MOVIE* promptForAction(MOVIE* dirRoot, MOVIE* colRoot, FILE *f);
 MOVIE* runCreate(MOVIE* dirRoot, MOVIE* colRoot, FILE *f);
@@ -107,49 +105,33 @@ int main()
 			}
 			if((strcmp(ans, "y")==0)||(strcmp(ans, "Y")==0)){		//reprompt if no (break the loop)
 				//reads in the collection that was already there
-				collection = fopen(fileName, "r+");
+				collection = fopen(fileName, "r");
 				char line[216];
-				while (fgets(line, 216, collection) != NULL){								//read in a line (with max 216 characters) from the collection and saves it to the char[] line
-					printf("Line read in: %s\n\n", line);
+				while (fgets(line, 216, collection) != NULL){	//ADJUST FOR WRITING ERROR, READ TWO LINES AT A TIME							//read in a line (with max 216 characters) from the collection and saves it to the char[] line
 					//used strtok to separate and save all values from the file
-					const char delim2[] = "	";
+					const char delim2[] = "\t";
 					char *token2;
 					token2 = strtok(line, delim2);
 					int tracker = 1;
 					while(token2 != NULL){
 						if(tracker == 1){
 							tID = token2;
-							printf("ID: %s\n", tID);
 						} else if (tracker == 2){
 							type = token2;
-							printf("Type: %s\n", type);
 						} else if (tracker == 3){
 							pTitle = token2;
-							printf("Primary Title: %s\n", pTitle);
 						} else if (tracker == 4){
 							oTitle = token2;
-							printf("Original Title: %s\n", oTitle);
 						} else if (tracker == 5){
 							adult = token2;
-							printf("Adult: %s\n", adult);
 						} else if (tracker == 6){
 							sYear = token2;
-							printf("Start Year: %s\n", sYear);
 						} else if(tracker == 7){
 							eYear = token2;
-							printf("End Year: %s\n", eYear);
 						} else if(tracker == 8){
 							runTime = token2;
-							printf("Runtime: %s\n", runTime);
 						} else if(tracker == 9){
 							inGenres = token2;
-							printf("Genres: %s\n", inGenres);
-						} else if(tracker == 10){
-							medType = token2;
-							printf("Media Type: %s\n", medType);
-						} else if(tracker == 11){
-							date = token2;
-							printf("Genres: %s\n", date);
 						} else {
 							printf("error");
 							exit(0); 
@@ -157,15 +139,39 @@ int main()
 						token2 = strtok(NULL, delim2);
 						tracker++;
 					}
+					char line2[216];
+					//read second line and delineate for type and genre
+					if(fgets(line2, 216, collection) != NULL){
+						char *token3;
+						token3 = strtok(line2, delim2);
+						int tracker2 = 1;
+						while(token3 != NULL){
+							if(tracker2 == 1){
+								medType = token3;
+							} else if (tracker2 == 2){
+								//FINISH
+								date = token3;
+							} else {
+								printf("Something went wrong\n");
+							}
+							token3 = strtok(NULL, delim2);
+							tracker2++;
+						}
+						
+					}
+					
 					MOVIE* new_mov = newMovie(tID, type, pTitle, oTitle, adult, sYear, eYear, runTime, inGenres);
 					colRoot = insertMovie(colRoot, new_mov);		//insert the movie into the BST
+					setMediaType(find(colRoot, getPTitle(new_mov)), medType);
+					setDate(find(colRoot, getPTitle(new_mov)), date);
 				}
+				fclose(collection);
 			}
 		} else {																//if the file doesn"t already exist, create it																							//if the file doesn"t already exist, create one for writing
 			strcpy(ans, "y");
-			collection = fopen(fileName, "w+");
+			
 		}
-		
+		collection = fopen(fileName, "w+");
 	}
 	
 	colRoot = promptForAction(dirRoot, colRoot, collection);
@@ -324,7 +330,7 @@ void displayFoundDBMovies(DA *foundMovies, int start, int end, FILE *f){
 	}
 }
 
-MOVIE* selectAMovie(DA *foundMovies, int start, int end, FILE *f){//FIX: segfault in here somewhere
+MOVIE* selectAMovie(DA *foundMovies, int start, int end, FILE *f){
 	//prompt for number of chosen movie (1-10), if they want to continue the search, enter (c), if they want to go back (b)
 	printf("Is the movie you want there? If it is, enter 'y'. If you wish to continue the search, enter 'c'. If you want to go back to the previous 10 search values, enter 'b'. If you want to exit the program, enter 'e'.\n");
 	char ans[2];

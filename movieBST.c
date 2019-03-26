@@ -9,28 +9,29 @@
 #include <ctype.h>
 
 typedef struct movie {	//struct definition
-	char tconst[10];              //tracker1
-	char titleType[6];           //tracker2
-	char primaryTitle[240];        //tracker3						//key
-	char originalTitle[240];       //tracker4
-	char isAdult[2];             //tracker5
-	char startYear[5];           //tracker6
-	char endYear[5];             //tracker7
-	char runtimeMinutes[5];      //tracker8
-	char genres[240];  		       //tracker9
+	char tconst[10];
+	char titleType[6];
+	char primaryTitle[240];        //used as key for the BST
+	char originalTitle[240];
+	char isAdult[2];
+	char startYear[5];
+	char endYear[5];
+	char runtimeMinutes[5];
+	char genres[240];
 	
 	int visited;
 	
 	char mediaType[8];			//set later by user in collection only
-	char date[10];					//set later by user in colleciton only
+	char date[10];				//set later by user in colleciton only
 	
 	MOVIE* left;
 	MOVIE* right;
 	MOVIE* parent;
 }MOVIE;
 
+//creates a new movie node
 MOVIE* newMovie(char* tID, char* type, char* pTitle, char* oTitle, char* adult, char* sYear, char* eYear, char* runTime, char* inGenres) {
-    MOVIE *new_movie = (MOVIE*)malloc(sizeof(MOVIE));
+    MOVIE *new_movie = (MOVIE*)malloc(sizeof(MOVIE));//allocates enough memory for the movie node
 	
     if(new_movie == NULL) {
         fprintf (stderr, "Something went wrong with malloc for new movie\n");
@@ -128,9 +129,7 @@ MOVIE* insertMovie(MOVIE *root, MOVIE *newMov) {
         MOVIE* prev   = NULL;																			//sets the prev value to null for the root
  
         while(current != NULL) {																		//if the current movie isn't null
-			r = strcmp(getPTitle(newMov),current->primaryTitle);													//compare the title passed to the function with the title of the current movie
-            //TESTER
-						
+			r = strcmp(getPTitle(newMov),current->primaryTitle);										//compare the title passed to the function with the title of the current movie			
 			prev = current;																				//set the previous node to current
             if(r < 0) {																					//if the title passed is "less than" the current title
 				is_left = 1;																			//mark that it should go left
@@ -139,7 +138,6 @@ MOVIE* insertMovie(MOVIE *root, MOVIE *newMov) {
 				is_left = 0;																			//mark that it should go right
                 current = current->right;																//set the current value to the current value's right value
             } 
-			//TESTER
 			else {
 				is_left = 1;
 				current = current->left;
@@ -227,8 +225,21 @@ DA* findMovies(MOVIE *root, const char* pTitle){	//FIX: Need to make everything 
 	MOVIE* current = root;
 	MOVIE* prev = NULL;
 	DA* array = newDA();
+	char inTitle[240];
+	strcpy(inTitle, pTitle);
+	int i;
+	for(int i=0; i < strlen(inTitle); i++){
+		inTitle[i] = tolower(inTitle[i]);
+	}
 	while(current != NULL){
-		char* check = strstr(current->primaryTitle, pTitle);
+		char compString[240];
+		strcpy(compString, getPTitle(current));
+		
+		for(int i = 0; i < strlen(compString); i++){
+			compString[i] = tolower(compString[i]);
+		}
+		
+		char* check = strstr(compString/*current->primaryTitle*/, inTitle);
 		if((check!=NULL) && (current->visited != 1)){	//if it contains the substring
 			insertDA(array, sizeDA(array), current);		//add it to the dynamic array
 		}
@@ -255,7 +266,20 @@ DA* findMovies(MOVIE *root, const char* pTitle){	//FIX: Need to make everything 
 			}
 		}
 	}
+	
+	//reseting visited to 0, for future searches
+	reset(root);
+	
 	return array;
+}
+
+void reset(MOVIE *root){
+	if(root == NULL){
+		return;
+	}
+	root->visited = 0;
+	reset(root->left);
+	reset(root->right);
 }
 
 void printTree(MOVIE* root, FILE* f){		//inorder traversal
@@ -272,7 +296,7 @@ void printTreeForFile(MOVIE* root, FILE* f){		//preorder traversal
 		return;
 	}
 	//center
-    printMovie(root, f);
+	printMovie(root, f);
 	printTreeForFile(root->left, f);	//left
 	printTreeForFile(root->right, f);	//right
 }
