@@ -20,6 +20,7 @@ A movie catalog with CRUD access using the IMDB Database
 
 # Running the program
 1. Open the terminal
+	1a. If you are in Windows, you will need to navigate to the terminal for the Windows subsystem, by typing 'bash'
 2. Navigate to the folder holding the programs
 3. Enter 'collection'
 4. Enter a user
