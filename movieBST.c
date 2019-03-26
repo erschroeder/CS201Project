@@ -37,6 +37,7 @@ MOVIE* newMovie(char* tID, char* type, char* pTitle, char* oTitle, char* adult, 
         fprintf (stderr, "Something went wrong with malloc for new movie\n");
         exit(1);
     }
+	//setting the variables to what were passed
 	strcpy(new_movie->tconst, tID);
 	strcpy(new_movie->titleType, type);
 	strcpy(new_movie->primaryTitle, pTitle);
@@ -47,15 +48,13 @@ MOVIE* newMovie(char* tID, char* type, char* pTitle, char* oTitle, char* adult, 
 	strcpy(new_movie->runtimeMinutes, runTime);
 	strcpy(new_movie->genres, inGenres);
 	
-	new_movie->visited = 0;
+	new_movie->visited = 0;//hasn't been visited yet in a search
 	
     //set later as needed
 	new_movie->left = NULL;
     new_movie->right = NULL;
 	new_movie->parent = NULL;
-	//set later by user in collection only
-	//new_movie->mediaType = NULL;
-	//new_movie->date = NULL;
+	//pass back the movie
     return new_movie;
 }
 
@@ -111,12 +110,10 @@ void setParent(MOVIE* mov, MOVIE* par){
 
 void setMediaType(MOVIE* mov, char* medType){
 	strcpy(mov->mediaType, medType);
-	//mov->mediaType = medType;
 }
 
 void setDate(MOVIE* mov, char* d){
 	strcpy(mov->date, d);
-	//mov->date = d;
 }
 
 MOVIE* insertMovie(MOVIE *root, MOVIE *newMov) {
@@ -138,112 +135,103 @@ MOVIE* insertMovie(MOVIE *root, MOVIE *newMov) {
 				is_left = 0;																			//mark that it should go right
                 current = current->right;																//set the current value to the current value's right value
             } 
-			else {
-				is_left = 1;
-				current = current->left;
+			else {																						//if the current is the same
+				is_left = 1;																			//mark it to go left
+				current = current->left;																//set the current value to the current value's left value
 			}
  
         }
         if(is_left){																					//if it should be a left value
-			prev->left = newMov;	//set the prev movie's left to the new movie
-			setParent(prev->left, prev);
+			prev->left = newMov;																		//set the prev movie's left to the new movie
+			setParent(prev->left, prev);																//set the parent
 		} else {																						//if it should be a right value
-			prev->right = newMov;	//set the prev movie's right to the new movie
-			setParent(prev->right, prev);
+			prev->right = newMov;																		//set the prev movie's right to the new movie
+			setParent(prev->right, prev);																//set the parent
 		}
  
     }
     return root;
 }
 
-MOVIE* removeMovie(MOVIE *root, char* pTitle)
+MOVIE* removeMovie(MOVIE *root, char* pTitle)															//removes the movie from the list
 {
-    if(root == NULL)
+    if(root == NULL)																					//if root is null, return now
         return NULL;
  
     MOVIE *current;
-    int r = strcmp(pTitle,root->primaryTitle);
+    int r = strcmp(pTitle,root->primaryTitle);															//compare the searched title to the current title
     if( r < 0)
-        root->left = removeMovie( root->left, pTitle);
+        root->left = removeMovie( root->left, pTitle);													//run the remove function on the left subtree
     else if( r > 0 )
-        root->right = removeMovie(root->right, pTitle);
+        root->right = removeMovie(root->right, pTitle);													//run the remove function on the right subtree
     else
     {
         if (root->left == NULL)
         {
-            current = root->right;
-            free(root);
-            root = current;
+            current = root->right;																		//set current to right
+            free(root);																					//remove the root
+            root = current;																				//set root to current
         }
         else if (root->right == NULL)
         {
-            current = root->left;
-            free(root);
-            root = current;
+            current = root->left;																		//set current to left
+            free(root);																					//remove the root
+            root = current;																				//set root to current
         }
         else    //2 children
         {
-            current = root->right;
-            MOVIE *parent = NULL;
+            current = root->right;																		//set current to right
+            MOVIE *parent = NULL;																		//create a parent node
  
-            while(current->left != NULL)
+            while(current->left != NULL)																//while there is a left node to look at
             {
-                parent = current;
-                current = current->left;
+                parent = current;																		//set parent to current
+                current = current->left;																//set current to left
             }
             //setting root to current
 			strcpy(root->tconst, current->tconst);
-			//root->tconst = current->tconst;
 			strcpy(root->titleType, current->titleType);
-			//root->titleType = current->titleType;
 			strcpy(root->primaryTitle, current->primaryTitle);
-			//root->primaryTitle = current->primaryTitle;
 			strcpy(root->originalTitle, current->originalTitle);
-			//root->originalTitle = current->originalTitle;
 			strcpy(root->isAdult, current->isAdult);
-			//root->isAdult = current->isAdult;
 			strcpy(root->startYear, current->startYear);
-			//root->startYear = current->startYear;
 			strcpy(root->endYear, current->endYear);
-			//root->endYear = current->endYear;
 			strcpy(root->runtimeMinutes, current->runtimeMinutes);
-			//root->runtimeMinutes = current->runtimeMinutes;
 			strcpy(root->genres, current->genres);
-			//root->genres = current->genres;
 			setMediaType(root, current->mediaType);
 			setDate(root, current->date);
             if (parent != NULL)
-                parent->left = removeMovie(parent->left, parent->left->primaryTitle);
+                parent->left = removeMovie(parent->left, parent->left->primaryTitle);					//remove parent's left node
             else
-                root->right = removeMovie(root->right, root->right->primaryTitle);
+                root->right = removeMovie(root->right, root->right->primaryTitle);						//remove root's right node
         }
     }
     return root;
 }
 
-DA* findMovies(MOVIE *root, const char* pTitle){	//FIX: Need to make everything lowercase, if time, change to only search first word
+DA* findMovies(MOVIE *root, const char* pTitle){	//Linear search to find any entry that contains the word
 	MOVIE* current = root;
 	MOVIE* prev = NULL;
-	DA* array = newDA();
-	char inTitle[240];
+	DA* array = newDA();																				//holds all the movies found
+	char inTitle[240];																					//holds pTitle, so it can be changed to lowercase
 	strcpy(inTitle, pTitle);
 	int i;
-	for(int i=0; i < strlen(inTitle); i++){
+	for(int i=0; i < strlen(inTitle); i++){																//changes inTitle (pTitle) to all lowercase
 		inTitle[i] = tolower(inTitle[i]);
 	}
-	while(current != NULL){
-		char compString[240];
+	while(current != NULL){	
+		char compString[240];																			//holds current->primaryTitle, so it can be changed
 		strcpy(compString, getPTitle(current));
 		
-		for(int i = 0; i < strlen(compString); i++){
+		for(int i = 0; i < strlen(compString); i++){													//changes compString (current->primaryTitle) to all lowercase
 			compString[i] = tolower(compString[i]);
 		}
 		
-		char* check = strstr(compString/*current->primaryTitle*/, inTitle);
+		char* check = strstr(compString, inTitle);														//compare the passed title to the current's title
 		if((check!=NULL) && (current->visited != 1)){	//if it contains the substring
 			insertDA(array, sizeDA(array), current);		//add it to the dynamic array
 		}
-		current->visited = 1;
+		current->visited = 1;																			//mark as visited
 		//if left exists, and has not been visited, check that one
 		if(current->left != NULL && current->left->visited != 1){
 			prev = current;
@@ -272,7 +260,7 @@ DA* findMovies(MOVIE *root, const char* pTitle){	//FIX: Need to make everything 
 	
 	return array;
 }
-
+//marks every node as unvisited
 void reset(MOVIE *root){
 	if(root == NULL){
 		return;
@@ -291,7 +279,7 @@ void printTree(MOVIE* root, FILE* f){		//inorder traversal
 	printTree(root->right, f); //right
 }
 
-void printTreeForFile(MOVIE* root, FILE* f){		//preorder traversal
+void printTreeForFile(MOVIE* root, FILE* f){		//preorder traversal, so when it rebuilds the tree, it shouldn't be a regular linked list
 	if(root == NULL){
 		return;
 	}
@@ -301,8 +289,8 @@ void printTreeForFile(MOVIE* root, FILE* f){		//preorder traversal
 	printTreeForFile(root->right, f);	//right
 }
 
-void dispose(MOVIE* root)
-{
+//frees the whole tree
+void dispose(MOVIE* root) {
     if(root != NULL)
     {
         dispose(root->left);
@@ -319,7 +307,9 @@ void printMovie(MOVIE* mov, FILE *f)
 	}
 }
 
-MOVIE* find(MOVIE *root, const char* pTitle){
+//find the movie if the whole title is given
+MOVIE* find(MOVIE *root, const char* pTitle){	//log(n) search function, used when finding movies in the code
+	//if root is null, return
 	if(root == NULL)
         return NULL;
  
@@ -327,12 +317,16 @@ MOVIE* find(MOVIE *root, const char* pTitle){
     MOVIE* current = root;
     while(current != NULL)
     {
-        r = strcmp(pTitle,current->primaryTitle);
-        if(r < 0)
+        //compare the passed title to the current title
+		r = strcmp(pTitle,current->primaryTitle);
+        //if the passed title is less, go left
+		if(r < 0)
             current = current->left;
-        else if(r > 0)
+        //if the passed title is more, go right
+		else if(r > 0)
             current = current->right;
-        else
+        //if they match, return the current node
+		else
             return current;
     }
     return current;
