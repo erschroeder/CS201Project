@@ -10,17 +10,27 @@ A movie catalog with CRUD access using the IMDB Database
 	makefile
 	movieBST.c
 	movieBST.h
-2. Enter the terminal on your computer and navigate to the folder where you saved the above files
-3. Enter 'wget https://datasets.imdbws.com/title.basics.tsv.gz' to download the most updated version of the database
-4. Go into file explorer, and right-click on the title.basics.tsv.gz file
-5. Unzip that file (if you are on windows, you will have to use 7zip)
-6. Navigate into that folder
-7. Take the data file in there and move it to where you saved the above programs
-8. Back in the terminal, enter 'grep "movie" data.tsv > movie_records
+2. Open the terminal on your computer
+	2a. If you are in Windows, you will need to navigate to the terminal for the Windows subsystem, by typing 'bash'
+		2a.a If you don't have the Linux Subsystem installed
+			2a.a.1 Open Powershell as an Administrator
+			2a.a.2 Run "Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Windows-Subsystem-Linux"
+			2a.a.3 Restart when prompted
+3. Navigate to the folder where you saved the above files
+4. Enter 'wget https://datasets.imdbws.com/title.basics.tsv.gz' to download the most updated version of the database
+5. Go into file explorer, and right-click on the title.basics.tsv.gz file
+6. Unzip that file (if you are on windows, you will have to use 7zip)
+7. Navigate into that folder
+8. Take the data file in there and move it to where you saved the above programs
+9. Back in the terminal, enter 'grep "movie" data.tsv > movie_records
 
 # Running the program
 1. Open the terminal
 	1a. If you are in Windows, you will need to navigate to the terminal for the Windows subsystem, by typing 'bash'
+		1a.a If you don't have the Linux Subsystem installed
+			1a.a.1 Open Powershell as an Administrator
+			1a.a.2 Run "Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Windows-Subsystem-Linux"
+			1a.a.3 Restart when prompted
 2. Navigate to the folder holding the programs
 3. Enter 'collection'
 4. Enter a user
