@@ -42,7 +42,7 @@ int main()
 	MOVIE* dirRoot = NULL;																	//initializes a movie pointer that points to the root of the bst for the directory
 	FILE* collection;
 	
-	FILE *movieRecs = fopen("movie_recordsTEST.txt", "r");											//opens the imdb file
+	FILE *movieRecs = fopen("movie_records", "r");											//opens the imdb file
 	if (movieRecs == NULL)																	//if it can"t open the file, crash the program
     {
         printf("Cannot open movie_records \n");
