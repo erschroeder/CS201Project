@@ -227,10 +227,9 @@ DA* findMovies(MOVIE *root, const char* pTitle){	//FIX: Need to make everything 
 	MOVIE* current = root;
 	MOVIE* prev = NULL;
 	DA* array = newDA();
-	
 	while(current != NULL){
 		char* check = strstr(current->primaryTitle, pTitle);
-		if(check && current->visited != 1){	//if it contains the substring
+		if((check!=NULL) && (current->visited != 1)){	//if it contains the substring
 			insertDA(array, sizeDA(array), current);		//add it to the dynamic array
 		}
 		current->visited = 1;
@@ -259,13 +258,13 @@ DA* findMovies(MOVIE *root, const char* pTitle){	//FIX: Need to make everything 
 	return array;
 }
 
-void printTree(MOVIE* root){		//inorder traversal
+void printTree(MOVIE* root, FILE* f){		//inorder traversal
 	if(root == NULL){
 		return;
 	}
-	printTree(root->left);	//left
-	printMovie(root);		//center
-	printTree(root->right); //right
+	printTree(root->left, f);	//left
+	printMovie(root, f);		//center
+	printTree(root->right, f); //right
 }
 
 void printTreeForFile(MOVIE* root, FILE* f){		//preorder traversal
@@ -273,17 +272,7 @@ void printTreeForFile(MOVIE* root, FILE* f){		//preorder traversal
 		return;
 	}
 	//center
-    fprintf(f, "%s	", getID(root));
-	fprintf(f, "%s	", getType(root));
-	fprintf(f, "%s	", getPTitle(root));
-	fprintf(f, "%s	", getOTitle(root));
-	fprintf(f, "%s	", getAdult(root));
-	fprintf(f, "%s	", getSYear(root));
-	fprintf(f, "%s	", getEYear(root));
-	fprintf(f, "%s	", getRuntime(root));
-	fprintf(f, "%s	", getGenres(root));
-	fprintf(f, "%s	", getMediaType(root));
-	fprintf(f, "%s\n", getDate(root));
+    printMovie(root, f);
 	printTreeForFile(root->left, f);	//left
 	printTreeForFile(root->right, f);	//right
 }
@@ -298,17 +287,11 @@ void dispose(MOVIE* root)
     }
 }
 
-void printMovie(MOVIE* mov)
+void printMovie(MOVIE* mov, FILE *f)
 {
     if(mov != NULL){
-        printf("%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s", getID(mov), getType(mov), getPTitle(mov), getOTitle(mov), getAdult(mov), getSYear(mov), getEYear(mov), getRuntime(mov), getGenres(mov));
-		if(getMediaType(mov) != NULL){
-			printf("\t%s", getMediaType(mov));
-		}
-		if(getDate(mov) != NULL){
-			printf("\t%s", getDate(mov));
-		}
-		printf("\n");
+		fprintf(f, "%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s", getID(mov), getType(mov), getPTitle(mov), getOTitle(mov), getAdult(mov), getSYear(mov), getEYear(mov), getRuntime(mov), getGenres(mov), getMediaType(mov), getDate(mov));
+		fprintf(f, "\n");
 	}
 }
 

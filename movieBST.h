@@ -24,12 +24,12 @@
 	void setParent(MOVIE* mov, MOVIE* par);
 	void setMediaType(MOVIE* mov, char* medType);
 	void setDate(MOVIE* mov, char* d);
-	MOVIE* insertMovie(MOVIE *root, MOVIE *newMov/*char* tID, char* type, char* pTitle, char* oTitle, char* adult, char* sYear, char* eYear, char* runTime, char* inGenres*/);
+	MOVIE* insertMovie(MOVIE *root, MOVIE *newMov);
 	MOVIE* removeMovie(MOVIE *root, char* pTitle);
 	DA* findMovies(MOVIE *root, const char* pTitle);
-	void printTree(MOVIE* root);
+	void printTree(MOVIE* root, FILE* f);
 	void dispose(MOVIE* root);
-	void printMovie(MOVIE* mov);
+	void printMovie(MOVIE* mov, FILE* f);
 	MOVIE* find(MOVIE *root, const char* pTitle);
 	void printTreeForFile(MOVIE* root, FILE* f);
 

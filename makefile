@@ -10,8 +10,3 @@ clean:
 	rm -f movieBST.o da.o collection
 test:
 	./collection
-valgrind:
-	valgrind collection
-	
-#wget https://datasets.imdbws.com/title.basics.tsv.gz
-#grep "movie" title.basics.tsv > movie_records	
