@@ -7,6 +7,7 @@
 
 #include <unistd.h>
 
+
 //function declarations
 MOVIE* promptForAction(MOVIE* dirRoot, MOVIE* colRoot, FILE *f);
 MOVIE* runCreate(MOVIE* dirRoot, MOVIE* colRoot, FILE *f);
@@ -39,6 +40,8 @@ int main()
 	MOVIE* colRoot = NULL;																	//initializes a movie pointer that points to the root of the bst for the collection
 	MOVIE* dirRoot = NULL;																	//initializes a movie pointer that points to the root of the bst for the directory
 	FILE* collection;
+	
+	int c;
 	
 	//reads in the movies from the database file
 	FILE *movieRecs = fopen("movie_records", "r");											//opens the imdb file
@@ -93,16 +96,19 @@ int main()
 		printf("What is your username?\n");		//prompt for username
 		char user[240];
 		
-		scanf("%s", user);						//reads in given userID
+		scanf("%239s", user);						//reads in given userID
+		while ((c = fgetc(stdin)) != '\n' && c != EOF); // Flush stdin
 		char* fileName = strcat(user,".log");	//saves the file name as the <userID>.log
 		//opens/creates the collection
 		int result = access(fileName, F_OK);
 		if(result != -1){													//if the file already exists
 			printf("This user already exists. Is this you? (y or n)");			//verify this is the right user, if yes, read in the file, if no reprompt
-			scanf("%s", ans);
+			scanf("%1s", ans);
+			while ((c = fgetc(stdin)) != '\n' && c != EOF); // Flush stdin
 			while((strcmp(ans, "y")!=0)&&(strcmp(ans, "Y")!=0)&&(strcmp(ans, "n")!=0)&&(strcmp(ans, "N")!=0)){
 				printf("This user already exists. Is this you? (y or n)\n");
-				scanf("%s", ans);
+				scanf("%1s", ans);
+				while ((c = fgetc(stdin)) != '\n' && c != EOF); // Flush stdin
 			}
 			if((strcmp(ans, "y")==0)||(strcmp(ans, "Y")==0)){		//if yes, read in the file already there
 				//reads in the collection that was already there
@@ -151,6 +157,8 @@ int main()
 								medType = token3;
 							} else if (tracker2 == 2){
 								date = token3;
+								if( date[strlen(date)-1] == '\n' )//newline remove from date
+									date[strlen(date)-1] = 0;
 							} else {
 								printf("Something went wrong\n");
 							}
@@ -176,7 +184,7 @@ int main()
 			
 		}
 		//open the file with write+ permissions, so it will truncate the original to 0
-		collection = fopen(fileName, "w+");
+		collection = fopen(fileName, "w");
 	}
 	
 	colRoot = promptForAction(dirRoot, colRoot, collection);
@@ -191,9 +199,11 @@ int main()
 }
 
 MOVIE* promptForAction(MOVIE* dirRoot, MOVIE* colRoot, FILE *f){												//prompt for what they want to do
+	int c;
 	char ans[2];
-	printf("What would you like to do? VIEW YOUR COLLECTION (r), ADD A NEW RECORD (c), UPDATE A RECORD (u), DELETE A RECORD (d), or EXIT (e)\n");
-	scanf("%s", ans);
+	printf("What would you like to do? VIEW YOUR COLLECTION (r), ADD A NEW RECORD (c), UPDATE A RECORD (u), or DELETE A RECORD (d)\n");
+	scanf("%1s", ans);
+	//while ((c = fgetc(stdin)) != '\n' && c != EOF); // Flush stdin//WHY??????????????
 	//run the function for what they want
 	if((strcmp(ans, "c")==0)||(strcmp(ans, "C")==0)){
 		colRoot = runCreate(dirRoot, colRoot, f);
@@ -203,8 +213,6 @@ MOVIE* promptForAction(MOVIE* dirRoot, MOVIE* colRoot, FILE *f){												//pr
 		colRoot = runUpdate(colRoot, f);
 	} else if ((strcmp(ans, "d")==0)||(strcmp(ans, "D")==0)){
 		colRoot = runDelete(colRoot, f);
-	} else if ((strcmp(ans, "e")==0)||(strcmp(ans, "E")==0)){													//terminate the program if they want to exit
-		exit(0);
 	} else {																									//reprompt until valid input
 		printf("Invalid Response. Please Try Again.\n");
 		promptForAction(dirRoot, colRoot, f);
@@ -238,13 +246,15 @@ void runRetrieve(MOVIE* colRoot, FILE *f){					//print out the whole collection
 }
 
 MOVIE* runUpdate(MOVIE* colRoot, FILE *f){						//update the media type or the date
+	int c;
 	//find the movie they want to update
 	MOVIE* orig = findMovieInDB(colRoot, f);
 	printf("Update media type (m), date aquired (d), or both (b)?");
 	char ans[2];
 	char newMediaType[8];
 	char newDate[10];
-	scanf("%s", ans);
+	scanf("%1s", ans);
+	while ((c = fgetc(stdin)) != '\n' && c != EOF); // Flush stdin
 	if((strcmp(ans, "m")==0)||(strcmp(ans, "M")==0)){
 		setMediaType(orig,promptForMediaType(newMediaType));
 	} else if ((strcmp(ans, "d")==0)||(strcmp(ans, "D")==0)){
@@ -270,9 +280,11 @@ MOVIE* runDelete(MOVIE* colRoot, FILE *f){						//delete a record
 
 //find out what the media type is
 char* promptForMediaType(char* type){
+	int c;
 	printf("What is the media type for this movie? DVD (v), Bluray (b), or Digital (d)\n");
 	char ans[2];
-	scanf("%s", ans);
+	scanf("%1s", ans);
+	while ((c = fgetc(stdin)) != '\n' && c != EOF); // Flush stdin
 	if((strcmp(ans, "v")==0)||(strcmp(ans, "V")==0)){
 		strcpy(type, "DVD");
 	} else if((strcmp(ans, "b")==0)||(strcmp(ans, "B")==0)){
@@ -283,29 +295,16 @@ char* promptForMediaType(char* type){
 		printf("Invalid Response. Try Again.\n");
 		return promptForMediaType(type);
 	}
-	//confirm choice
-	while((strcmp(ans, "y")!=0)&&(strcmp(ans, "Y")!=0)&&(strcmp(ans, "n")!=0)&&(strcmp(ans, "N")!=0)){
-		printf("Is the movie a %s? (y or n)\n", type);
-		scanf("%s", ans);
-		if(ans == "n" || ans == "N"){
-			return promptForMediaType(type);
-		}
-	}
 	return type;
 }
 //find out what the date is
 char* promptForDate(char* date){
+	int c;
 	printf("When did you acquire this movie? (MM/DD/YY)\n");
 	char ans[2];
 	char selection[10];
-	scanf("%s", selection);
-	while((strcmp(ans, "y")!=0)&&(strcmp(ans, "Y")!=0)&&(strcmp(ans, "n")!=0)&&(strcmp(ans, "N")!=0)){
-		printf("Did you aquire the movie on %s? (y or n)\n", selection);
-		scanf("%s", ans);
-		if((strcmp(ans, "n")==0)||(strcmp(ans, "N")==0)){
-			return promptForDate(date);
-		}
-	}
+	scanf("%8s", selection);
+	while ((c = fgetc(stdin)) != '\n' && c != EOF); // Flush stdin
 	strcpy(date, selection);
 	return date;
 }
@@ -349,10 +348,12 @@ void displayFoundDBMovies(DA *foundMovies, int start, int end, FILE *f){
 
 //pick a movie from the display
 MOVIE* selectAMovie(DA *foundMovies, int start, int end, FILE *f){
+	int c;
 	//prompt for number of chosen movie (1-10), if they want to continue the search, enter (c), if they want to go back (b)
-	printf("Is the movie you want there? If it is, enter 'y'. If you wish to continue the search, enter 'c'. If you want to go back to the previous 10 search values, enter 'b'. If you want to exit the program, enter 'e'.\n");
+	printf("Is the movie you want there? If it is, enter 'y'. If you wish to continue the search, enter 'c'. If you want to go back to the previous 10 search values, enter 'b'.\n");
 	char ans[2];
-	scanf("%s", ans);
+	scanf("%1s", ans);
+	while ((c = fgetc(stdin)) != '\n' && c != EOF); // Flush stdin
 	if((strcmp(ans, "c")==0)||(strcmp(ans, "C")==0)){
 		//show the next ten movies
 		start+=10;
@@ -363,9 +364,6 @@ MOVIE* selectAMovie(DA *foundMovies, int start, int end, FILE *f){
 		start-=10;
 		end-=10;
 		displayFoundDBMovies(foundMovies, start, end, f);
-	} else if ((strcmp(ans, "e")==0)||(strcmp(ans, "E")==0)){
-		//terminate the program
-		exit(0);
 	} else if ((strcmp(ans, "y")==0)||(strcmp(ans, "Y")==0)){
 		//if the movie is there, pick it
 		printf("What is the number of the movie you wish to select?\n");
@@ -388,10 +386,12 @@ MOVIE* selectAMovie(DA *foundMovies, int start, int end, FILE *f){
 
 //runs after each action
 void endSequence(MOVIE* dirRoot, MOVIE* colRoot, FILE* collection){
+	int c;
 	char ans[] = "y";
-	while((strcmp(ans, "n")!=0)&&(strcmp(ans, "n")!=0)){
+	while((strcmp(ans, "n")!=0)&&(strcmp(ans, "N")!=0)){
 		printf("Would you like to do anything else?\n");
-		scanf("%s", ans);
+		scanf("%1s", ans);
+		while ((c = fgetc(stdin)) != '\n' && c != EOF); // Flush stdin
 		if ((strcmp(ans, "y")==0)||(strcmp(ans, "Y")==0)){
 			colRoot = promptForAction(dirRoot, colRoot, collection);
 		}
