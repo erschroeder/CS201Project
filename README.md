@@ -32,12 +32,13 @@ A movie catalog with CRUD access using the IMDB Database
 			1a.a.2 Run "Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Windows-Subsystem-Linux"
 			1a.a.3 Restart when prompted
 2. Navigate to the folder holding the programs
-3. Enter 'collection'
-4. Enter a user
-	4a. If this user already exists:
-		4a.1. If you are a returning user, enter 'y' for yes, verifying this is your file
-		4a.2. If you are a new user, enter 'n' for no, and it will reprompt for a new username
-5. Follow the prompts for what you want to do (additional instructions below)
+3. Enter 'make'
+4. Enter 'collection'
+5. Enter a user
+	5a. If this user already exists:
+		5a.1. If you are a returning user, enter 'y' for yes, verifying this is your file
+		5a.2. If you are a new user, enter 'n' for no, and it will reprompt for a new username
+6. Follow the prompts for what you want to do (additional instructions below)
 
 NOTE: All of the following instructions assume you have completed the 'Getting Started' Steps
 
