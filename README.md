@@ -101,4 +101,4 @@ NOTE 2: If you terminate the program without completing the started tasks, the u
 
 # Tutorial Links
 Getting Started and Basic Usage: https://youtu.be/uTz6ZoQ__18
-Returning User Basic Usage: https://youtu.be/uTz6ZoQ__18
+Returning User Basic Usage: https://youtu.be/dzor7Kam92g
