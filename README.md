@@ -42,6 +42,8 @@ A movie catalog with CRUD access using the IMDB Database
 
 NOTE: All of the following instructions assume you have completed the 'Getting Started' Steps
 
+NOTE 2: If you terminate the program without completing the started tasks, the user file will be lost.
+
 # Viewing Your Collection
 1. Enter 'r'
 
