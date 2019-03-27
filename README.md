@@ -99,3 +99,6 @@ NOTE 2: If you terminate the program without completing the started tasks, the u
 		3b.c Enter 'e' if you wish to terminate the program
 4. If you would like to do something else, enter 'y'; otherwise, enter 'n' to terminate
 
+# Tutorial Links
+Getting Started and Basic Usage: https://youtu.be/uTz6ZoQ__18
+Returning User Basic Usage: https://youtu.be/uTz6ZoQ__18
