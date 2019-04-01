@@ -102,3 +102,7 @@ NOTE 2: If you terminate the program without completing the started tasks, the u
 # Tutorial Links
 Getting Started and Basic Usage: https://youtu.be/uTz6ZoQ__18
 Returning User Basic Usage: https://youtu.be/dzor7Kam92g
+
+# Borrowed Code
+The basis for the insert, remove, and dispose functions was from this site: http://www.zentut.com/c-tutorial/c-binary-search-tree/
+I used that as a starting point, and changed it to fit my needs for the movie binary search tree
