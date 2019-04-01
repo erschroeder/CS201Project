@@ -8,6 +8,11 @@
 
 #include <ctype.h>
 
+/*
+The original basis for the BST was found here: http://www.zentut.com/c-tutorial/c-binary-search-tree/
+I based insertMovie, removeMovie, and dispose functions off of the code found here, and changed it for my purposes.
+*/
+
 typedef struct movie {	//struct definition
 	char tconst[10];
 	char titleType[6];
